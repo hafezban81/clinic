@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#be185d">
+<title>Clinic Manager</title>
+<style>
+:root{--p:#be185d;--p2:#ec4899;--p3:#f9a8d4;--soft:#fdf2f8;--soft2:#fce7f3;--bg:#fff7fb;--card:#fff;--tx:#2b1a24;--mu:#8a6b7c;--bd:#f6dbe8;--red:#e11d48;--amb:#d97706;--grn:#059669;--pur:#8b5cf6;--sh:0 2px 12px rgba(190,24,93,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 15v14M15 22h14' stroke='white' stroke-opacity='.13' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"),linear-gradient(135deg,#9d174d,#db2777 60%,#f472b6);box-shadow:0 4px 16px rgba(157,23,77,.25)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+header h1{font-size:18px;margin:0;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header small{display:block;font-size:12px;opacity:.85;font-weight:400}
+#addBtn{background:#fff;color:var(--p);border:0;border-radius:22px;height:40px;padding:0 16px;font-weight:700;font-size:15px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+main{padding:14px 12px calc(88px + env(safe-area-inset-bottom));max-width:720px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:1px solid var(--bd);display:flex;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(190,24,93,.08)}
+nav button{position:relative;flex:1;border:0;background:none;padding:9px 0 7px;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav svg,.ico svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--p);font-weight:700}
+nav button.on::before{content:"";position:absolute;top:0;width:30px;height:3px;border-radius:0 0 4px 4px;background:var(--p)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.card[class*=st-]{border-left:4px solid var(--pur)}
+.st-Arrived{border-left-color:var(--amb)!important}.st-Done{border-left-color:var(--grn)!important}.st-Cancelled{border-left-color:#cbd5e1!important;opacity:.75}
+.hero{position:relative;overflow:hidden;border-radius:20px;padding:18px;margin-bottom:12px;color:#fff;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 15v14M15 22h14' stroke='white' stroke-opacity='.13' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"),linear-gradient(135deg,#be185d,#ec4899);box-shadow:0 6px 18px rgba(190,24,93,.25)}
+.hero small{opacity:.85;font-size:13px}.hero .hi{font-size:22px;font-weight:750;margin:2px 0 4px}.hero .s{color:#fff;opacity:.95;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px;box-shadow:var(--sh)}
+.stat b{font-size:21px;display:block;line-height:1.1}
+.stat span{font-size:12px;color:var(--mu)}
+.ico{width:40px;height:40px;border-radius:12px;background:var(--soft2);color:var(--p);display:grid;place-items:center;flex:none}
+h2{font-size:13px;margin:18px 4px 8px;color:var(--p);text-transform:uppercase;letter-spacing:.07em}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.item{cursor:pointer}
+.n{font-weight:650}
+.s{font-size:13px;color:var(--mu)}
+.time{display:inline-block;background:var(--soft2);color:var(--p);font-weight:700;font-size:13px;padding:2px 9px;border-radius:10px;margin-right:4px}
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#be185d);color:#fff;display:grid;place-items:center;font-weight:700;flex:none;letter-spacing:.02em}
+.av.lg{width:56px;height:56px;font-size:19px}
+.chev{color:var(--p3);font-size:22px;line-height:1}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;color:#fff;white-space:nowrap}
+.Scheduled{background:var(--pur)}.Arrived{background:var(--amb)}.Done{background:var(--grn)}.Cancelled{background:#94a3b8}.Unpaid{background:var(--red)}.Paid{background:var(--grn)}
+.btn{border:0;border-radius:12px;padding:0 16px;height:44px;font-size:15px;font-weight:650;background:linear-gradient(135deg,#db2777,#be185d);color:#fff;box-shadow:0 2px 6px rgba(190,24,93,.25)}
+.btn.sm{height:36px;font-size:13px;padding:0 13px;border-radius:10px}
+.btn.ghost{background:var(--soft2);color:var(--p);box-shadow:none}
+.btn.red{background:#ffe4e6;color:#be123c;box-shadow:none}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+input,select,textarea{width:100%;font:inherit;font-size:16px;padding:12px;border:1.5px solid var(--bd);border-radius:12px;background:#fff;color:var(--tx);margin-top:4px;outline:0}
+input:focus,select:focus,textarea:focus{border-color:var(--p2);box-shadow:0 0 0 3px rgba(236,72,153,.15)}
+.search{margin:0 0 12px;border-radius:26px;padding:13px 18px;background:#fff}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weight:600}
+.chips{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto}
+.chip{border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:7px 16px;font-size:14px;white-space:nowrap;color:var(--tx)}
+.chip.on{background:var(--p);color:#fff;border-color:var(--p)}
+.empty{text-align:center;color:var(--mu);padding:26px 10px}
+.empty::before{content:"";display:block;width:68px;height:68px;margin:0 auto 12px;border-radius:50%;background:var(--soft2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23be185d' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h4l2-5 4 10 2-5h6'/%3E%3C/svg%3E") center/36px no-repeat}
+.kv{font-size:14px;margin:4px 0}.kv i{color:var(--mu);font-style:normal}
+.warn{background:#ffe4e6;color:#9f1239;border-radius:10px;padding:8px 12px;font-size:13px;margin-top:8px;font-weight:600}
+.modal{position:fixed;inset:0;background:rgba(80,10,45,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.modal.hidden{display:none}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet::before{content:"";display:block;width:42px;height:4px;border-radius:4px;background:var(--p3);margin:0 auto 12px}
+.sheet h3{margin:0 0 12px;color:var(--p)}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#831843;color:#fff;padding:10px 18px;border-radius:22px;font-size:14px;z-index:30;opacity:0;pointer-events:none;transition:.25s}
+#toast.show{opacity:1}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--soft2)}
+#print{display:none}
+@media print{body>*:not(#print){display:none!important}#print{display:block;padding:24px;font-family:Georgia,serif}#print h1{margin:0}#print hr{margin:12px 0}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div><h1 id="title"></h1></div><button id="addBtn" data-act="add">+ Add</button></header>
+<main id="main"></main>
+<nav id="nav">
+  <button data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-nav="patients"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.4c2 .7 3 2.6 3 5.6"/></svg>Patients</button>
+  <button data-nav="appts"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Appts</button>
+  <button data-nav="billing"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Billing</button>
+  <button data-nav="settings"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>Settings</button>
+</nav>
+<div id="modal" class="modal hidden"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<div id="print"></div>
+<input type="file" id="file" accept="application/json" hidden>
+
+<script>
+'use strict';
+/* ---------- Data ---------- */
+const KEY='clinic_cms_v1';
+const fresh=()=>({settings:{name:'My Clinic',currency:'$',doctor:'Dr. Name'},patients:[],appts:[],visits:[]});
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));return d&&d.patients?d:fresh()}catch(e){return fresh()}}
+let db=load();
+/* ---------- Photos (IndexedDB) ---------- */
+let PH=[];
+const idbOpen=()=>new Promise((res,rej)=>{const r=indexedDB.open('clinic_photos',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function idbTx(mode,fn){const d=await idbOpen();return new Promise((res,rej)=>{const t=d.transaction('photos',mode);fn(t.objectStore('photos'));t.oncomplete=()=>res();t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
+const photoPut=p=>idbTx('readwrite',s=>s.put(p));
+const photoDel=id=>idbTx('readwrite',s=>s.delete(id));
+const photoClear=()=>idbTx('readwrite',s=>s.clear());
+async function photosLoad(){try{const d=await idbOpen();PH=await new Promise((res,rej)=>{const r=d.transaction('photos').objectStore('photos').getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}catch(e){PH=[]}}
+function compress(file,max=1280){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.75))};
+  im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
+async function addPhotos(files,pid){let n=0;for(const f of files){try{const data=await compress(f);const p={id:uid(),patientId:pid,date:today(),caption:'',data};await photoPut(p);PH.push(p);n++}catch(e){}}
+  render();toast(n?n+' photo(s) added':'Could not add photo')}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Storage full or blocked')}}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const money=n=>db.settings.currency+(+n||0).toFixed(2);
+const pat=id=>db.patients.find(p=>p.id===id);
+const pname=id=>(pat(id)||{name:'Unknown'}).name;
+const age=dob=>{if(!dob)return'';const d=new Date(dob),n=new Date();let a=n.getFullYear()-d.getFullYear();if(n<new Date(n.getFullYear(),d.getMonth(),d.getDate()))a--;return a>=0?a+'y':''};
+const fdate=s=>s?new Date(s+'T00:00').toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'';
+const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const IC={'home': '<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>', 'users': '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.4c2 .7 3 2.6 3 5.6"/></svg>', 'cal': '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', 'bill': '<svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>', 'set': '<svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>', 'clock': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', 'cash': '<svg viewBox="0 0 24 24"><path d="M12 3v18M16.5 7.5C15.5 6.3 14 6 12 6c-2.5 0-4 1.2-4 3s1.5 2.6 4 3 4 1.2 4 3-1.5 3-4 3c-2 0-3.6-.4-4.7-1.7"/></svg>'};
+const byTime=(a,b)=>(a.date+a.time).localeCompare(b.date+b.time);
+
+/* ---------- State ---------- */
+const S={view:'home',pid:null,date:today(),bill:'Unpaid',q:''};
+const TITLES={home:'Today',patients:'Patients',appts:'Appointments',billing:'Billing',settings:'Settings'};
+const STATUS=['Scheduled','Arrived','Done','Cancelled'];
+
+/* ---------- Views ---------- */
+function apptCard(a,showDate){
+  const next=a.status==='Scheduled'?'Arrived':null;
+  return `<div class="card st-${a.status}"><div class="row"><div class="item" data-act="openPatient" data-id="${a.patientId}"><div class="n"><span class="time">${esc(a.time)}</span> ${esc(pname(a.patientId))}</div>
+  <div class="s">${showDate?esc(fdate(a.date))+' · ':''}${esc(a.reason||'Consultation')}</div></div><span class="tag ${a.status}">${a.status}</span></div>
+  <div class="btns">${next?`<button class="btn sm" data-act="arrive" data-id="${a.id}">Check in</button>`:''}
+  ${a.status==='Arrived'?`<button class="btn sm" data-act="consult" data-id="${a.id}">Consult</button>`:''}
+  ${a.status==='Scheduled'||a.status==='Arrived'?`<button class="btn sm red" data-act="cancelAppt" data-id="${a.id}">Cancel</button>`:''}
+  <button class="btn sm ghost" data-act="editAppt" data-id="${a.id}">Edit</button></div></div>`;
+}
+function vHome(){
+  const t=today(),m=t.slice(0,7);
+  const ta=db.appts.filter(a=>a.date===t).sort(byTime);
+  const unpaid=db.visits.filter(v=>!v.paid&&+v.fee>0);
+  const rev=db.visits.filter(v=>v.paid&&v.date.startsWith(m)).reduce((s,v)=>s+(+v.fee||0),0);
+  const waiting=ta.filter(a=>a.status==='Arrived').length;
+  const hr=new Date().getHours(),greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+  return `<div class="hero"><small>${greet}</small><div class="hi">${esc(db.settings.doctor||'Doctor')}</div><div class="s">${ta.length?`You have <b>${ta.length}</b> appointment${ta.length>1?'s':''} today`:'No appointments scheduled today'}</div></div>
+   <div class="grid">
+   <div class="stat"><span class="ico">${IC.cal}</span><div><b>${ta.length}</b><span>Appointments today</span></div></div>
+   <div class="stat"><span class="ico">${IC.clock}</span><div><b>${waiting}</b><span>Waiting in clinic</span></div></div>
+   <div class="stat"><span class="ico">${IC.users}</span><div><b>${db.patients.length}</b><span>Total patients</span></div></div>
+   <div class="stat"><span class="ico">${IC.cash}</span><div><b>${money(rev)}</b><span>Collected this month</span></div></div></div>
+   ${unpaid.length?`<div class="card row" data-act="goBilling" style="cursor:pointer"><div><b>${unpaid.length} unpaid bill(s)</b><div class="s" style="color:var(--mu);font-size:13px">${money(unpaid.reduce((s,v)=>s+(+v.fee),0))} outstanding</div></div><span class="tag Unpaid">Review</span></div>`:''}
+   <h2>Today's queue</h2>
+   ${ta.length?ta.map(a=>apptCard(a)).join(''):'<div class="empty">No appointments today.<br>Tap “+ Add” to book one.</div>'}`;
+}
+function vPatients(){
+  const q=S.q.toLowerCase();
+  const list=db.patients.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.phone||'').includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  return `<input class="search" id="q" placeholder="Search name or phone…" value="${esc(S.q)}">
+   ${list.length?list.map(p=>`<div class="card item row" data-act="openPatient" data-id="${p.id}"><div class="row" style="justify-content:flex-start;gap:12px"><span class="av">${esc(ini(p.name))}</span><div><div class="n">${esc(p.name)}</div>
+   <div class="s">${[age(p.dob),p.gender,p.phone].filter(Boolean).map(esc).join(' · ')}</div></div></div><span class="chev">›</span></div>`).join(''):'<div class="empty">No patients found.</div>'}`;
+}
+function vPatient(){
+  const p=pat(S.pid);if(!p){S.pid=null;return vPatients()}
+  const vs=db.visits.filter(v=>v.patientId===p.id).sort((a,b)=>b.date.localeCompare(a.date));
+  const up=db.appts.filter(a=>a.patientId===p.id&&a.date>=today()&&a.status==='Scheduled').sort(byTime);
+  const ph=PH.filter(x=>x.patientId===p.id).sort((a,b)=>b.date.localeCompare(a.date));
+  return `<button class="btn ghost sm" data-act="backPatients">← All patients</button>
+  <div class="card" style="margin-top:10px"><div class="row" style="justify-content:flex-start;gap:12px;margin-bottom:6px"><span class="av lg">${esc(ini(p.name))}</span><div class="n" style="font-size:20px;font-weight:700">${esc(p.name)}</div></div>
+   <div class="kv"><i>Age/Sex:</i> ${esc([age(p.dob),p.gender].filter(Boolean).join(' · ')||'—')}</div>
+   <div class="kv"><i>Phone:</i> ${esc(p.phone||'—')}</div>
+   ${p.notes?`<div class="kv"><i>Notes:</i> ${esc(p.notes)}</div>`:''}
+   ${p.allergies?`<div class="warn">⚠️ Allergies: ${esc(p.allergies)}</div>`:''}
+   <div class="btns">${p.phone?`<a class="btn sm ghost" style="display:inline-flex;align-items:center;text-decoration:none" href="tel:${esc(p.phone)}">Call</a>`:''}
+   <button class="btn sm" data-act="newAppt" data-id="${p.id}">Book</button>
+   <button class="btn sm" data-act="newVisit" data-id="${p.id}">New visit</button>
+   <button class="btn sm ghost" data-act="editPatient" data-id="${p.id}">Edit</button>
+   <button class="btn sm red" data-act="delPatient" data-id="${p.id}">Delete</button></div></div>
+  ${up.length?`<h2>Upcoming</h2>${up.map(a=>apptCard(a,true)).join('')}`:''}
+  <h2>Photos (${ph.length})</h2>
+  <div class="card"><label class="btn sm" style="display:inline-flex;align-items:center;margin:0">+ Add photo<input type="file" id="photoIn" data-pid="${p.id}" accept="image/*" multiple hidden></label>
+  ${ph.length?`<div class="photos" style="margin-top:10px">${ph.map(x=>`<img src="${x.data}" alt="${esc(x.caption)}" data-act="viewPhoto" data-id="${x.id}">`).join('')}</div>`:''}</div>
+  <h2>Visit history</h2>
+  ${vs.length?vs.map(v=>visitCard(v)).join(''):'<div class="empty">No visits recorded.</div>'}`;
+}
+function visitCard(v){
+  return `<div class="card"><div class="row"><b>${esc(fdate(v.date))}</b><span class="tag ${v.paid?'Paid':'Unpaid'}">${v.paid?'Paid':'Unpaid'} ${money(v.fee)}</span></div>
+  <div class="kv"><i>Diagnosis:</i> ${esc(v.diagnosis||'—')}</div>
+  ${v.notes?`<div class="kv"><i>Notes:</i> ${esc(v.notes)}</div>`:''}
+  ${v.rx?`<div class="kv"><i>Prescription:</i><br>${esc(v.rx).replace(/\n/g,'<br>')}</div>`:''}
+  <div class="btns"><button class="btn sm ghost" data-act="editVisit" data-id="${v.id}">Edit</button>
+  ${v.rx?`<button class="btn sm ghost" data-act="printRx" data-id="${v.id}">Print Rx</button>`:''}
+  ${!v.paid&&+v.fee>0?`<button class="btn sm" data-act="pay" data-id="${v.id}">Mark paid</button>`:''}</div></div>`;
+}
+function vAppts(){
+  const list=db.appts.filter(a=>a.date===S.date).sort(byTime);
+  return `<div class="row" style="margin-bottom:10px"><button class="btn ghost sm" data-act="dayPrev">‹</button>
+   <input type="date" id="dayPick" value="${S.date}" style="margin:0;text-align:center"><button class="btn ghost sm" data-act="dayNext">›</button></div>
+   ${list.length?list.map(a=>apptCard(a)).join(''):'<div class="empty">No appointments on this day.</div>'}`;
+}
+function vBilling(){
+  const all=db.visits.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const list=all.filter(v=>S.bill==='All'||(S.bill==='Paid')===!!v.paid);
+  const tot=list.reduce((s,v)=>s+(+v.fee||0),0);
+  return `<div class="chips">${['Unpaid','Paid','All'].map(f=>`<button class="chip ${S.bill===f?'on':''}" data-act="bill" data-id="${f}">${f}</button>`).join('')}</div>
+   <div class="card row"><span>Total (${list.length})</span><b>${money(tot)}</b></div>
+   ${list.length?list.map(v=>`<div class="card"><div class="row"><div class="item" data-act="openPatient" data-id="${v.patientId}"><div class="n">${esc(pname(v.patientId))}</div>
+   <div class="s">${esc(fdate(v.date))} · ${esc(v.diagnosis||'Consultation')}</div></div><div style="text-align:right"><b>${money(v.fee)}</b><br><span class="tag ${v.paid?'Paid':'Unpaid'}">${v.paid?'Paid':'Unpaid'}</span></div></div>
+   ${!v.paid&&+v.fee>0?`<div class="btns"><button class="btn sm" data-act="pay" data-id="${v.id}">Mark paid</button></div>`:''}</div>`).join(''):'<div class="empty">Nothing here.</div>'}`;
+}
+function vSettings(){
+  const s=db.settings;
+  return `<div class="card"><label>Clinic name<input id="sName" value="${esc(s.name)}"></label>
+   <label>Doctor name<input id="sDoc" value="${esc(s.doctor)}"></label>
+   <label>Currency symbol<input id="sCur" value="${esc(s.currency)}" maxlength="4"></label>
+   <button class="btn" data-act="saveSettings">Save</button></div>
+   <h2>Data (stored on this device)</h2>
+   <div class="card"><div class="btns" style="margin-top:0">
+   <button class="btn ghost" data-act="export">Export backup</button>
+   <button class="btn ghost" data-act="import">Import backup</button>
+   <button class="btn ghost" data-act="demo">Load sample data</button>
+   <button class="btn red" data-act="reset">Erase all</button></div>
+   <p class="s" style="color:var(--mu);font-size:13px">Data stays in this browser only. Export a backup regularly.</p></div>`;
+}
+
+function render(){
+  const v=S.view;
+  $('#title').innerHTML=esc(v==='home'?db.settings.name:(v==='patients'&&S.pid?'Patient':TITLES[v]))+(v==='home'?`<small>${esc(fdate(today()))}</small>`:'');
+  $('#main').innerHTML=({home:vHome,patients:S.pid?vPatient:vPatients,appts:vAppts,billing:vBilling,settings:vSettings})[v]();
+  $('#addBtn').style.display=(v==='billing'||v==='settings')?'none':'';
+  $('#addBtn').textContent=(v==='patients'&&!S.pid)?'+ Patient':'+ Appt';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.nav===v));
+}
+
+/* ---------- Modal form ---------- */
+function closeModal(){$('#modal').classList.add('hidden')}
+function form(title,fields,vals,onSave){
+  const html=fields.map(x=>{
+    const v=vals[x.k]==null?'':vals[x.k];let i;
+    if(x.type==='select')i=`<select name="${x.k}">${x.opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+    else if(x.type==='textarea')i=`<textarea name="${x.k}" rows="3">${esc(v)}</textarea>`;
+    else i=`<input name="${x.k}" type="${x.type||'text'}" value="${esc(v)}" ${x.req?'required':''} ${x.step?`step="${x.step}" min="0"`:''} ${x.type==='tel'?'inputmode="tel"':''}>`;
+    return `<label>${x.label}${i}</label>`;
+  }).join('');
+  $('#sheet').innerHTML=`<h3>${esc(title)}</h3><form id="f">${html}<div class="btns"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" data-act="close">Cancel</button></div></form>`;
+  $('#modal').classList.remove('hidden');
+  $('#f').onsubmit=e=>{e.preventDefault();onSave(Object.fromEntries(new FormData(e.target)));closeModal();save();render()};
+}
+const patOpts=()=>db.patients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>[p.id,p.name]);
+
+/* ---------- Forms ---------- */
+function patientForm(p){
+  form(p?'Edit patient':'New patient',[
+    {k:'name',label:'Full name',req:1},{k:'phone',label:'Phone',type:'tel'},{k:'dob',label:'Date of birth',type:'date'},
+    {k:'gender',label:'Gender',type:'select',opts:[['',''],['Female','Female'],['Male','Male'],['Other','Other']]},
+    {k:'allergies',label:'Allergies',type:'textarea'},{k:'notes',label:'Notes / history',type:'textarea'}],p||{},o=>{
+    if(p)Object.assign(p,o);else{const n={id:uid(),...o};db.patients.push(n);S.pid=n.id;S.view='patients'}
+    toast('Saved');});
+}
+function apptForm(a,pid){
+  if(!db.patients.length){toast('Add a patient first');return}
+  form(a?'Edit appointment':'Book appointment',[
+    {k:'patientId',label:'Patient',type:'select',opts:patOpts()},{k:'date',label:'Date',type:'date',req:1},{k:'time',label:'Time',type:'time',req:1},
+    {k:'reason',label:'Reason'},{k:'status',label:'Status',type:'select',opts:STATUS.map(s=>[s,s])}],
+    a||{patientId:pid||db.patients[0].id,date:S.view==='appts'?S.date:today(),time:'09:00',status:'Scheduled'},o=>{
+    if(a)Object.assign(a,o);else db.appts.push({id:uid(),...o});toast('Saved');});
+}
+function visitForm(v,pid,appt){
+  if(!db.patients.length){toast('Add a patient first');return}
+  form(v?'Edit visit':'New visit',[
+    {k:'patientId',label:'Patient',type:'select',opts:patOpts()},{k:'date',label:'Date',type:'date',req:1},
+    {k:'diagnosis',label:'Diagnosis'},{k:'notes',label:'Clinical notes',type:'textarea'},
+    {k:'rx',label:'Prescription (one drug per line, e.g. Amoxicillin 500mg x3/day, 5 days)',type:'textarea'},
+    {k:'fee',label:'Fee',type:'number',step:'0.01'},{k:'paid',label:'Payment',type:'select',opts:[['0','Unpaid'],['1','Paid']]}],
+    v?{...v,paid:v.paid?'1':'0'}:{patientId:pid||(appt&&appt.patientId)||db.patients[0].id,date:today(),fee:'',paid:'0'},o=>{
+    const r={...o,fee:+o.fee||0,paid:o.paid==='1'};
+    if(v)Object.assign(v,r);else{db.visits.push({id:uid(),...r});if(appt)appt.status='Done'}
+    toast('Saved');});
+}
+function printRx(v){
+  const p=pat(v.patientId)||{},s=db.settings;
+  $('#print').innerHTML=`<h1 style="color:#be185d">${esc(s.name)}</h1><div>${esc(s.doctor)}</div><hr style="border:0;border-top:3px solid #be185d">
+   <div><b>Patient:</b> ${esc(p.name)} ${esc(age(p.dob))} ${esc(p.gender||'')}</div><div><b>Date:</b> ${esc(fdate(v.date))}</div>
+   ${p.allergies?`<div><b>Allergies:</b> ${esc(p.allergies)}</div>`:''}
+   <div><b>Diagnosis:</b> ${esc(v.diagnosis||'')}</div><hr><h2 style="color:#000;text-transform:none">℞</h2>
+   <div style="font-size:18px;line-height:1.8">${esc(v.rx).replace(/\n/g,'<br>')}</div><br><br><div style="text-align:right">______________________<br>${esc(s.doctor)}</div>`;
+  setTimeout(()=>window.print(),50);
+}
+
+/* ---------- Actions ---------- */
+const find=(arr,id)=>arr.find(x=>x.id===id);
+const A={
+  add(){(S.view==='patients'&&!S.pid)?patientForm():apptForm(null,S.pid)},
+  close:closeModal,
+  openPatient(id){S.pid=id;S.view='patients';S.q='';render();scrollTo(0,0)},
+  backPatients(){S.pid=null;render()},
+  editPatient(id){patientForm(find(db.patients,id))},
+  delPatient(id){if(!confirm('Delete this patient and ALL their appointments and visits?'))return;
+    PH.filter(x=>x.patientId===id).forEach(x=>photoDel(x.id));PH=PH.filter(x=>x.patientId!==id);db.patients=db.patients.filter(p=>p.id!==id);db.appts=db.appts.filter(a=>a.patientId!==id);db.visits=db.visits.filter(v=>v.patientId!==id);S.pid=null;save();render();toast('Deleted')},
+  newAppt(id){apptForm(null,id)},
+  editAppt(id){apptForm(find(db.appts,id))},
+  arrive(id){find(db.appts,id).status='Arrived';save();render()},
+  cancelAppt(id){if(confirm('Cancel this appointment?')){find(db.appts,id).status='Cancelled';save();render()}},
+  consult(id){const a=find(db.appts,id);visitForm(null,a.patientId,a)},
+  newVisit(id){visitForm(null,id)},
+  editVisit(id){visitForm(find(db.visits,id))},
+  printRx(id){printRx(find(db.visits,id))},
+  viewPhoto(id){const p=find(PH,id);if(!p)return;
+    $('#sheet').innerHTML=`<img src="${p.data}" style="width:100%;border-radius:12px"><div style="color:var(--mu);font-size:13px;margin:8px 0">${esc(fdate(p.date))}</div><label>Caption<input id="pcap" value="${esc(p.caption)}"></label><div class="btns"><button class="btn" data-act="saveCap" data-id="${id}">Save</button><button class="btn red" data-act="delPhoto" data-id="${id}">Delete</button><button class="btn ghost" data-act="close">Close</button></div>`;
+    $('#modal').classList.remove('hidden')},
+  saveCap(id){const p=find(PH,id);p.caption=$('#pcap').value.trim();photoPut(p);closeModal();render()},
+  delPhoto(id){if(!confirm('Delete this photo?'))return;PH=PH.filter(x=>x.id!==id);photoDel(id);closeModal();render()},
+  pay(id){find(db.visits,id).paid=true;save();render();toast('Marked paid')},
+  bill(id){S.bill=id;render()},
+  goBilling(){S.view='billing';S.bill='Unpaid';render()},
+  dayPrev(){shift(-1)},dayNext(){shift(1)},
+  saveSettings(){db.settings={name:$('#sName').value.trim()||'My Clinic',doctor:$('#sDoc').value.trim(),currency:$('#sCur').value||'$'};save();render();toast('Saved')},
+  export(){const b=new Blob([JSON.stringify({...db,photos:PH})],{type:'application/json'});const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);a.download='clinic-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)},
+  import(){$('#file').click()},
+  demo(){if(db.patients.length&&!confirm('Add sample data to existing records?'))return;demo();save();render();toast('Sample data added')},
+  reset(){if(confirm('Erase ALL clinic data on this device? This cannot be undone.')){db=fresh();PH=[];photoClear();S.pid=null;save();render()}}
+};
+function shift(n){const d=new Date(S.date+'T00:00');d.setDate(d.getDate()+n);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());S.date=d.toISOString().slice(0,10);render()}
+document.addEventListener('click',e=>{
+  const n=e.target.closest('[data-nav]');
+  if(n){S.view=n.dataset.nav;S.pid=null;render();scrollTo(0,0);return}
+  if(e.target.id==='modal'){closeModal();return}
+  const t=e.target.closest('[data-act]');
+  if(t&&A[t.dataset.act])A[t.dataset.act](t.dataset.id);
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){S.q=e.target.value;const pos=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(pos,pos)}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='photoIn'){addPhotos([...e.target.files],e.target.dataset.pid);e.target.value=''}
+  if(e.target.id==='dayPick'&&e.target.value){S.date=e.target.value;render()}
+  if(e.target.id==='file'){
+    const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.patients||!d.appts||!d.visits)throw 0;if(confirm('Replace current data with this backup?')){const {photos,...rest}=d;db={...fresh(),...rest};save();photoClear().then(()=>Promise.all((photos||[]).map(photoPut))).then(()=>{PH=photos||[];render();toast('Backup restored')})}}catch(x){toast('Invalid backup file')}e.target.value=''};
+    r.readAsText(f);
+  }
+});
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800)}
+
+function demo(){
+  const t=today(),p=[['Aisha Rahman','0123456789','1990-04-12','Female','Penicillin'],['Daniel Lim','0198765432','1984-09-30','Male',''],['Maria Santos','0171112233','2015-01-20','Female','']].map(x=>({id:uid(),name:x[0],phone:x[1],dob:x[2],gender:x[3],allergies:x[4],notes:''}));
+  db.patients.push(...p);
+  db.appts.push({id:uid(),patientId:p[0].id,date:t,time:'09:00',reason:'Fever & cough',status:'Arrived'},{id:uid(),patientId:p[1].id,date:t,time:'10:30',reason:'Blood pressure check',status:'Scheduled'},{id:uid(),patientId:p[2].id,date:t,time:'11:15',reason:'Vaccination',status:'Scheduled'});
+  db.visits.push({id:uid(),patientId:p[1].id,date:t.slice(0,8)+'01',diagnosis:'Hypertension',notes:'BP 150/95',rx:'Amlodipine 5mg once daily, 30 days',fee:45,paid:false},{id:uid(),patientId:p[0].id,date:t.slice(0,8)+'02',diagnosis:'Gastritis',notes:'',rx:'Omeprazole 20mg once daily, 14 days',fee:35,paid:true});
+}
+render();
+photosLoad().then(render);
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+</script>
+</body>
+</html>
