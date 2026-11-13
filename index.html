@@ -73,6 +73,7 @@ label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weigh
 .lbox label{text-align:left}.lbox h3{margin:10px 0 2px;color:var(--p);font-size:22px}
 .logo.big{width:64px;height:64px;border-radius:20px;margin:0 auto;background:var(--soft2);box-shadow:none}
 .lerr{color:var(--red);font-size:13px;min-height:18px;margin-bottom:8px}
+.art{display:block;width:100%;max-width:300px;height:auto;margin:0 auto 6px}
 #print{display:none}
 @media print{body>*:not(#print){display:none!important}#print{display:block;padding:24px;font-family:Georgia,serif}#print h1{margin:0}#print hr{margin:12px 0}}
 </style>
@@ -88,7 +89,26 @@ label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weigh
   <button data-nav="settings"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>Settings</button>
 </nav>
 <div id="login" class="login"><form id="lform" class="lbox" autocomplete="on">
-  <div class="logo big"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+  <svg class="art" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Smiling nurse and patient">
+<rect width="300" height="170" rx="18" fill="#fdf2f8"/>
+<circle cx="150" cy="88" r="112" fill="#fce7f3"/>
+<path d="M150 40c-10-7-14-11-14-17a7 7 0 0 1 14-3 7 7 0 0 1 14 3c0 6-4 10-14 17z" fill="#ec4899"/>
+<rect x="72" y="104" width="66" height="70" rx="26" fill="#fff" stroke="#f9a8d4" stroke-width="2"/>
+<path d="M105 122v12M99 128h12" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>
+<path d="M92 104c4 9 22 9 26 0" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+<circle cx="105" cy="68" r="22" fill="#f5c9a8"/>
+<path d="M83 64Q84 40 105 40Q126 40 127 64Q120 50 105 50Q90 50 83 64Z" fill="#5b3a29"/>
+<circle cx="97" cy="68" r="2.2" fill="#3b1f2b"/><circle cx="113" cy="68" r="2.2" fill="#3b1f2b"/>
+<circle cx="92" cy="77" r="4" fill="#fb7185" opacity=".35"/><circle cx="118" cy="77" r="4" fill="#fb7185" opacity=".35"/>
+<path d="M97 76Q105 85 113 76" fill="none" stroke="#3b1f2b" stroke-width="2.4" stroke-linecap="round"/>
+<rect x="168" y="112" width="58" height="62" rx="22" fill="#c4b5fd"/>
+<circle cx="197" cy="84" r="20" fill="#e9b48f"/>
+<path d="M177 82Q178 62 197 62Q216 62 217 82Q210 72 197 72Q184 72 177 82Z" fill="#2b1a24"/>
+<circle cx="190" cy="86" r="2" fill="#3b1f2b"/><circle cx="204" cy="86" r="2" fill="#3b1f2b"/>
+<circle cx="186" cy="94" r="4" fill="#fb7185" opacity=".35"/><circle cx="208" cy="94" r="4" fill="#fb7185" opacity=".35"/>
+<path d="M190 93Q197 100 204 93" fill="none" stroke="#3b1f2b" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
+<div class="logo big"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
   <h3>Clinic Manager</h3><p class="s" style="margin:0 0 14px">Staff sign in</p>
   <label>Email<input id="lemail" type="email" autocomplete="username" required></label>
   <label>Password<input id="lpass" type="password" autocomplete="current-password" required></label>
