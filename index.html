@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#be185d">
 <title>Clinic Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--p:#be185d;--p2:#ec4899;--p3:#f9a8d4;--soft:#fdf2f8;--soft2:#fce7f3;--bg:#fff7fb;--card:#fff;--tx:#2b1a24;--mu:#8a6b7c;--bd:#f6dbe8;--red:#e11d48;--amb:#d97706;--grn:#059669;--pur:#8b5cf6;--sh:0 2px 12px rgba(190,24,93,.08)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -66,12 +67,18 @@ label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weigh
 #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#831843;color:#fff;padding:10px 18px;border-radius:22px;font-size:14px;z-index:30;opacity:0;pointer-events:none;transition:.25s}
 #toast.show{opacity:1}
 .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--soft2)}
+.dot{width:9px;height:9px;border-radius:50%;background:#fde68a;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.4)}.dot.ok{background:#86efac}.dot.bad{background:#fca5a5}
+.login{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#9d174d,#db2777 60%,#f472b6)}.login.hidden{display:none}
+.lbox{background:#fff;border-radius:24px;padding:26px 22px;width:100%;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,.25);text-align:center}
+.lbox label{text-align:left}.lbox h3{margin:10px 0 2px;color:var(--p);font-size:22px}
+.logo.big{width:64px;height:64px;border-radius:20px;margin:0 auto;background:var(--soft2);box-shadow:none}
+.lerr{color:var(--red);font-size:13px;min-height:18px;margin-bottom:8px}
 #print{display:none}
 @media print{body>*:not(#print){display:none!important}#print{display:block;padding:24px;font-family:Georgia,serif}#print h1{margin:0}#print hr{margin:12px 0}}
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="logo"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div><h1 id="title"></h1></div><button id="addBtn" data-act="add">+ Add</button></header>
+<header><div class="brand"><div class="logo"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div><h1 id="title"></h1><span id="sync" class="dot"></span></div><button id="addBtn" data-act="add">+ Add</button></header>
 <main id="main"></main>
 <nav id="nav">
   <button data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
@@ -80,6 +87,13 @@ label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weigh
   <button data-nav="billing"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Billing</button>
   <button data-nav="settings"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>Settings</button>
 </nav>
+<div id="login" class="login"><form id="lform" class="lbox" autocomplete="on">
+  <div class="logo big"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#be185d" stroke="#be185d" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+  <h3>Clinic Manager</h3><p class="s" style="margin:0 0 14px">Staff sign in</p>
+  <label>Email<input id="lemail" type="email" autocomplete="username" required></label>
+  <label>Password<input id="lpass" type="password" autocomplete="current-password" required></label>
+  <div id="lerr" class="lerr"></div>
+  <button id="lbtn" class="btn" style="width:100%" type="submit">Sign in</button></form></div>
 <div id="modal" class="modal hidden"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
 <div id="print"></div>
@@ -91,22 +105,88 @@ label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px;font-weigh
 const KEY='clinic_cms_v1';
 const fresh=()=>({settings:{name:'My Clinic',currency:'$',doctor:'Dr. Name'},patients:[],appts:[],visits:[]});
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY));return d&&d.patients?d:fresh()}catch(e){return fresh()}}
-let db=load();
+let db=fresh();
 /* ---------- Photos (IndexedDB) ---------- */
 let PH=[];
 const idbOpen=()=>new Promise((res,rej)=>{const r=indexedDB.open('clinic_photos',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idbTx(mode,fn){const d=await idbOpen();return new Promise((res,rej)=>{const t=d.transaction('photos',mode);fn(t.objectStore('photos'));t.oncomplete=()=>res();t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
-const photoPut=p=>idbTx('readwrite',s=>s.put(p));
-const photoDel=id=>idbTx('readwrite',s=>s.delete(id));
-const photoClear=()=>idbTx('readwrite',s=>s.clear());
-async function photosLoad(){try{const d=await idbOpen();PH=await new Promise((res,rej)=>{const r=d.transaction('photos').objectStore('photos').getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}catch(e){PH=[]}}
+const photoPut=async p=>{const {error}=await sb.from('records').upsert({kind:'photos',id:p.id,data:p});if(error)throw error};
+const photoDel=async id=>{const {error}=await sb.from('records').delete().eq('kind','photos').eq('id',id);if(error)console.error(error)};
+const photoClear=async()=>{const {error}=await sb.from('records').delete().eq('kind','photos');if(error)console.error(error)};
+async function localPhotos(){try{const d=await idbOpen();return await new Promise((res,rej)=>{const r=d.transaction('photos').objectStore('photos').getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}catch(e){return[]}}
 function compress(file,max=1280){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
   c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.75))};
   im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
 async function addPhotos(files,pid){let n=0;for(const f of files){try{const data=await compress(f);const p={id:uid(),patientId:pid,date:today(),caption:'',data};await photoPut(p);PH.push(p);n++}catch(e){}}
   render();toast(n?n+' photo(s) added':'Could not add photo')}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Storage full or blocked')}}
+/* ---------- Supabase (cloud database) ---------- */
+const SUPABASE_URL='https://mlzbskhbnisflpzvakzq.supabase.co';
+const SUPABASE_KEY='sb_publishable_xy2cwrwYkrzpJWYSqXk1Yg_CESA6qTz';
+const configured=!SUPABASE_URL.startsWith('PASTE')&&!SUPABASE_KEY.startsWith('PASTE');
+let sb=null,SNAP={},busy=Promise.resolve(),syncing=0,USER=null;
+const setSync=ok=>{const d=document.getElementById('sync');if(d)d.className='dot '+(ok?'ok':'bad')};
+function collect(){const m={};['patients','appts','visits'].forEach(k=>db[k].forEach(x=>{m[k+'|'+x.id]=JSON.stringify(x)}));m['settings|main']=JSON.stringify(db.settings);return m}
+async function syncNow(){
+  if(!sb||!USER)return;
+  const cur=collect(),up=[],del=[];
+  for(const k in cur)if(SNAP[k]!==cur[k]){const[kind,id]=k.split('|');up.push({kind,id,data:JSON.parse(cur[k])})}
+  for(const k in SNAP)if(!(k in cur))del.push(k.split('|'));
+  try{
+    for(let i=0;i<up.length;i+=100){const {error}=await sb.from('records').upsert(up.slice(i,i+100));if(error)throw error}
+    for(const [kind,id] of del){const {error}=await sb.from('records').delete().eq('kind',kind).eq('id',id);if(error)throw error}
+    SNAP=cur;setSync(true)
+  }catch(e){setSync(false);toast('Could not save to cloud');console.error(e)}
+}
+function save(){syncing++;busy=busy.then(syncNow).finally(()=>{syncing--})}
+async function pullAll(){
+  const rows=[];
+  for(let from=0;;from+=500){const {data,error}=await sb.from('records').select('kind,id,data').neq('kind','photos').range(from,from+499);if(error)throw error;rows.push(...data);if(data.length<500)break}
+  const n=fresh();
+  rows.forEach(r=>{if(r.kind==='settings')n.settings={...n.settings,...r.data};else if(n[r.kind])n[r.kind].push(r.data)});
+  db=n;SNAP=collect();return rows.length;
+}
+async function pullPhotos(){
+  const out=[];
+  for(let from=0;;from+=40){const {data,error}=await sb.from('records').select('data').eq('kind','photos').range(from,from+39);if(error)break;out.push(...data.map(r=>r.data));if(data.length<40)break}
+  PH=out;
+}
+function showLogin(msg){document.getElementById('login').classList.remove('hidden');document.getElementById('lerr').textContent=msg||''}
+async function enter(user){
+  USER=user;document.getElementById('login').classList.add('hidden');
+  try{const n=await pullAll();render();setSync(true);pullPhotos().then(render);maybeMigrate(n)}
+  catch(e){setSync(false);render();toast('Database error: '+(e.message||e));console.error(e)}
+}
+async function maybeMigrate(n){
+  if(n>0||localStorage.getItem('clinic_skip_migrate'))return;
+  let old=null;try{old=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  const lp=await localPhotos();
+  const has=old&&old.patients&&(old.patients.length||(old.appts||[]).length||(old.visits||[]).length);
+  if(!has&&!lp.length)return;
+  if(!confirm('Cloud is empty. Upload the data saved on this device ('+(old&&old.patients?old.patients.length:0)+' patients, '+lp.length+' photos)?')){localStorage.setItem('clinic_skip_migrate','1');return}
+  if(has){db={...fresh(),...old};save()}
+  for(const p of lp){try{await photoPut(p);PH.push(p)}catch(e){}}
+  await busy;render();toast('Uploaded to cloud');
+}
+async function boot(){
+  if(!configured){showLogin('Setup needed: paste your Supabase URL and key into the file.');return}
+  if(!window.supabase){showLogin('Cannot load the database library. Check your internet.');return}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){USER=null;db=fresh();PH=[];SNAP={};render();showLogin()}});
+  const {data}=await sb.auth.getSession();
+  if(data&&data.session)enter(data.session.user);else showLogin();
+}
+document.getElementById('lform').onsubmit=async e=>{
+  e.preventDefault();if(!sb)return;
+  const b=document.getElementById('lbtn');b.disabled=true;document.getElementById('lerr').textContent='';
+  const {data,error}=await sb.auth.signInWithPassword({email:document.getElementById('lemail').value.trim(),password:document.getElementById('lpass').value});
+  b.disabled=false;
+  if(error){document.getElementById('lerr').textContent=error.message;return}
+  document.getElementById('lpass').value='';enter(data.user);
+};
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&USER&&!syncing&&document.getElementById('modal').classList.contains('hidden'))pullAll().then(()=>render()).catch(()=>{});
+});
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
@@ -209,17 +289,18 @@ function vBilling(){
 }
 function vSettings(){
   const s=db.settings;
-  return `<div class="card"><label>Clinic name<input id="sName" value="${esc(s.name)}"></label>
+  return `<div class="card row"><div><div class="n">Signed in</div><div class="s">${esc(USER?USER.email:'')}</div></div><div class="btns" style="margin:0"><button class="btn sm ghost" data-act="refresh">Refresh</button><button class="btn sm red" data-act="logout">Log out</button></div></div>
+   <div class="card"><label>Clinic name<input id="sName" value="${esc(s.name)}"></label>
    <label>Doctor name<input id="sDoc" value="${esc(s.doctor)}"></label>
    <label>Currency symbol<input id="sCur" value="${esc(s.currency)}" maxlength="4"></label>
    <button class="btn" data-act="saveSettings">Save</button></div>
-   <h2>Data (stored on this device)</h2>
+   <h2>Data (cloud database)</h2>
    <div class="card"><div class="btns" style="margin-top:0">
    <button class="btn ghost" data-act="export">Export backup</button>
    <button class="btn ghost" data-act="import">Import backup</button>
    <button class="btn ghost" data-act="demo">Load sample data</button>
    <button class="btn red" data-act="reset">Erase all</button></div>
-   <p class="s" style="color:var(--mu);font-size:13px">Data stays in this browser only. Export a backup regularly.</p></div>`;
+   <p class="s" style="color:var(--mu);font-size:13px">Records are saved to your Supabase cloud database and shared by every signed-in device.</p></div>`;
 }
 
 function render(){
@@ -309,6 +390,8 @@ const A={
     $('#modal').classList.remove('hidden')},
   saveCap(id){const p=find(PH,id);p.caption=$('#pcap').value.trim();photoPut(p);closeModal();render()},
   delPhoto(id){if(!confirm('Delete this photo?'))return;PH=PH.filter(x=>x.id!==id);photoDel(id);closeModal();render()},
+  logout(){sb.auth.signOut()},
+  refresh(){pullAll().then(()=>{render();pullPhotos().then(render);toast('Refreshed')}).catch(e=>toast('Refresh failed'))},
   pay(id){find(db.visits,id).paid=true;save();render();toast('Marked paid')},
   bill(id){S.bill=id;render()},
   goBilling(){S.view='billing';S.bill='Unpaid';render()},
@@ -349,8 +432,7 @@ function demo(){
   db.visits.push({id:uid(),patientId:p[1].id,date:t.slice(0,8)+'01',diagnosis:'Hypertension',notes:'BP 150/95',rx:'Amlodipine 5mg once daily, 30 days',fee:45,paid:false},{id:uid(),patientId:p[0].id,date:t.slice(0,8)+'02',diagnosis:'Gastritis',notes:'',rx:'Omeprazole 20mg once daily, 14 days',fee:35,paid:true});
 }
 render();
-photosLoad().then(render);
-try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+boot();
 </script>
 </body>
 </html>
